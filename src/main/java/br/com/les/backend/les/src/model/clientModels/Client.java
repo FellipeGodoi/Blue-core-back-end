@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Entity
 @Getter
 @Setter
@@ -28,6 +26,8 @@ public class Client {
     private String nameClient;
     private String birthDate;
     private String password;
+
+    private boolean isActive = true;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;

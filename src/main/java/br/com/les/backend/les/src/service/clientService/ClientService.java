@@ -1,7 +1,6 @@
 package br.com.les.backend.les.src.service.clientService;
 
 import br.com.les.backend.les.src.application.dto.clientDTO.ClientDTO;
-import br.com.les.backend.les.src.application.dto.error.RecursoNaoEncontradoException;
 import br.com.les.backend.les.src.model.clientModels.Client;
 import br.com.les.backend.les.src.repostory.clientRepository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +58,18 @@ public class ClientService {
         return Optional.empty();
     }
 
+    public Optional<Client> swapActiveClient(String cpf) {
+        Optional<Client> existingClient = clienteRepository.findByCpf(cpf);
+        if (existingClient.isPresent()) {
+            Client client = existingClient.get();
+            client.setActive(!client.isActive());
+            return Optional.of(clienteRepository.save(client));
+        }
+        return Optional.empty();
+    }
 
-
-
+    public boolean verifyActiveClient(String cpf) {
+        Optional<Client> existingClient = clienteRepository.findByCpf(cpf);
+        return existingClient.map(Client::isActive).orElse(false);
+    }
 }
