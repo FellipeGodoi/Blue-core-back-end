@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -37,9 +39,9 @@ public class Client {
 //
 //    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<Card> cards;
-//
-//    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Phone> phones;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Phone> phones;
 
     //para inserção de dados
     public Client(String cpf, String emailClient, String nameClient, String birthDate, String password, Gender gender) {
