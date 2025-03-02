@@ -38,7 +38,7 @@ public class PhoneService {
                     phone.setPhonetype(updatedPhone.getPhonetype());
                     return phoneRepository.save(phone);
                 })
-                .orElseThrow(()-> new RecursoNaoEncontradoException("Phone não encontrado"));
+                .orElseThrow(()-> new RecursoNaoEncontradoException("telefone não encontrado"));
     }
 
     public void deletePhone(Long phoneId){
