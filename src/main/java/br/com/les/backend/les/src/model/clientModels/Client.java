@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -26,7 +27,7 @@ public class Client {
 
     private String emailClient;
     private String nameClient;
-    private String birthDate;
+    private LocalDate birthDate;
     private String password;
 
     private boolean isActive = true;
@@ -44,7 +45,7 @@ public class Client {
     private List<Phone> phones;
 
     //para inserção de dados
-    public Client(String cpf, String emailClient, String nameClient, String birthDate, String password, Gender gender) {
+    public Client(String cpf, String emailClient, String nameClient, LocalDate birthDate, String password, Gender gender) {
         this.cpf = cpf;
         this.emailClient = emailClient;
         this.nameClient = nameClient;
