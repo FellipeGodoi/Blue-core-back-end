@@ -47,6 +47,9 @@ public class ClientController {
 
     @PostMapping
     public ResponseEntity<Client> createClient(@RequestBody Client client) {
+        if (isNullOrEmpty(client.getNameClient()) || isNullOrEmpty(client.getCpf()) || isNullOrEmpty(client.getEmailClient())) {
+            throw new IllegalArgumentException("Os campos nome, CPF e email são obrigatórios e não podem estar vazios.");
+        }
         Client newClient = clientService.createClient(client);
         return ResponseEntity.status(201).body(newClient);
     }
@@ -58,6 +61,9 @@ public class ClientController {
 
     @PutMapping("/cpf/{cpf}")
     public ResponseEntity<Client> updateClient(@PathVariable String cpf, @RequestBody Client clientDetails) {
+        if (isNullOrEmpty(clientDetails.getNameClient()) || isNullOrEmpty(clientDetails.getCpf()) || isNullOrEmpty(clientDetails.getEmailClient())) {
+            throw new IllegalArgumentException("Os campos nome, CPF e email são obrigatórios e não podem estar vazios.");
+        }
         if (clientService.verifyActiveClient(cpf)){
             Optional<Client> updatedClient = clientService.updateClient(cpf, clientDetails);
             return updatedClient.map(ResponseEntity::ok)
@@ -66,4 +72,7 @@ public class ClientController {
         throw new RecursoNaoEncontradoException("a conta do cliente precisa estar ativa para realizar essa ação");
     }
 
+    private boolean isNullOrEmpty(String value) {
+        return value == null || value.trim().isEmpty();
+    }
 }
