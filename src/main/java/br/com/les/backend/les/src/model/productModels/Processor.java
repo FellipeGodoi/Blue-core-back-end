@@ -41,7 +41,7 @@ public class Processor {
     private ProcessorBrand brand;
 
     @ManyToOne
-    @JoinColumn(name = "gpu_id", nullable = false)
+    @JoinColumn(name = "gpu_id")
     private GPU gpu;
 
     @ManyToOne

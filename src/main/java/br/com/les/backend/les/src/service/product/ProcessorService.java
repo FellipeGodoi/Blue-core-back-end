@@ -1,5 +1,6 @@
 package br.com.les.backend.les.src.service.product;
 
+import br.com.les.backend.les.src.application.dto.ProcessorDTO;
 import br.com.les.backend.les.src.model.productModels.GPU;
 import br.com.les.backend.les.src.model.productModels.Processor;
 import br.com.les.backend.les.src.model.productModels.Socket;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -27,6 +29,38 @@ public class ProcessorService {
 
     public List<Processor> getAllProcessors() {
         return processorRepository.findByPodeSerVendidoTrue();
+    }
+
+    public List<ProcessorDTO> getFilteredProcessors(String socketModel, String gpuModel, Boolean hasIntegratedGraphics, String brand) {
+        List<Processor> processors = processorRepository.findAll();
+
+        if (socketModel != null) {
+            processors = processors.stream()
+                    .filter(p -> p.getSocket().getModelo().equalsIgnoreCase(socketModel))
+                    .collect(Collectors.toList());
+        }
+
+        if (gpuModel != null) {
+            processors = processors.stream()
+                    .filter(p -> p.getGpu() != null && p.getGpu().getModelo().equalsIgnoreCase(gpuModel))
+                    .collect(Collectors.toList());
+        }
+
+        if (hasIntegratedGraphics != null) {
+            processors = processors.stream()
+                    .filter(p -> p.isDesbloqueado() == hasIntegratedGraphics)
+                    .collect(Collectors.toList());
+        }
+
+        if (brand != null) {
+            processors = processors.stream()
+                    .filter(p -> p.getBrand().toString().equalsIgnoreCase(brand))
+                    .collect(Collectors.toList());
+        }
+
+        return processors.stream()
+                .map(ProcessorDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
     public List<Processor> getInactiveProcessors() {
