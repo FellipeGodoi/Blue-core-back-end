@@ -8,8 +8,13 @@ import br.com.les.backend.les.src.repostory.productRepository.GPUProcessorRespos
 import br.com.les.backend.les.src.repostory.productRepository.ProcessorRepository;
 import br.com.les.backend.les.src.repostory.productRepository.SocketProcessorRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,9 +36,12 @@ public class ProcessorService {
         return processorRepository.findByPodeSerVendidoTrue();
     }
 
-    public List<ProcessorDTO> getFilteredProcessors(String socketModel, String gpuModel, Boolean hasIntegratedGraphics, String brand) {
+    public Page<ProcessorDTO> getFilteredProcessors(String socketModel, String gpuModel, Boolean hasIntegratedGraphics, String brand, String searchQuery, String sortBy, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
         List<Processor> processors = processorRepository.findAll();
 
+        // 🔹 Aplica os filtros normalmente
         if (socketModel != null) {
             processors = processors.stream()
                     .filter(p -> p.getSocket().getModelo().equalsIgnoreCase(socketModel))
@@ -58,9 +66,49 @@ public class ProcessorService {
                     .collect(Collectors.toList());
         }
 
-        return processors.stream()
+        if (searchQuery != null && !searchQuery.isBlank()) {
+            String queryLower = searchQuery.toLowerCase();
+            processors = processors.stream()
+                    .filter(p -> p.getModelo().toLowerCase().contains(queryLower) ||
+                            p.getBrand().toString().toLowerCase().contains(queryLower) ||
+                            (p.getGpu() != null && p.getGpu().getModelo().toLowerCase().contains(queryLower)) ||
+                            p.getSocket().getModelo().toLowerCase().contains(queryLower))
+                    .collect(Collectors.toList());
+        }
+
+        // 🔹 Ordenação
+        if (sortBy != null) {
+            switch (sortBy.toLowerCase()) {
+                case "name_asc":
+                    processors.sort(Comparator.comparing(Processor::getModelo, String.CASE_INSENSITIVE_ORDER));
+                    break;
+                case "name_desc":
+                    processors.sort(Comparator.comparing(Processor::getModelo, String.CASE_INSENSITIVE_ORDER).reversed());
+                    break;
+                case "price_asc":
+                    processors.sort(Comparator.comparing(Processor::getPrecoVenda));
+                    break;
+                case "price_desc":
+                    processors.sort(Comparator.comparing(Processor::getPrecoVenda).reversed());
+                    break;
+                case "stock_asc":
+                    processors.sort(Comparator.comparing(Processor::getEstoque));
+                    break;
+                case "stock_desc":
+                    processors.sort(Comparator.comparing(Processor::getEstoque).reversed());
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), processors.size());
+        List<ProcessorDTO> pageContent = processors.subList(start, end).stream()
                 .map(ProcessorDTO::fromEntity)
                 .collect(Collectors.toList());
+
+        return new PageImpl<>(pageContent, pageable, processors.size());
     }
 
     public List<Processor> getInactiveProcessors() {

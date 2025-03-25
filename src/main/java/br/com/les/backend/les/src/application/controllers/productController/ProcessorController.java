@@ -4,6 +4,7 @@ import br.com.les.backend.les.src.application.dto.ProcessorDTO;
 import br.com.les.backend.les.src.model.productModels.Processor;
 import br.com.les.backend.les.src.service.product.ProcessorService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,13 +25,17 @@ public class ProcessorController {
     }
 
     @GetMapping
-    public List<ProcessorDTO> getFilteredProcessors(
+    public Page<ProcessorDTO> getFilteredProcessors(
             @RequestParam(required = false) String socketModel,
             @RequestParam(required = false) String gpuModel,
             @RequestParam(required = false) Boolean hasIntegratedGraphics,
-            @RequestParam(required = false) String brand) {
-
-        return processorService.getFilteredProcessors(socketModel, gpuModel, hasIntegratedGraphics, brand);
+            @RequestParam(required = false) String brand,
+            @RequestParam(required = false) String searchQuery,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(defaultValue = "0") int page,  // Página inicial padrão é 0
+            @RequestParam(defaultValue = "10") int size // Tamanho padrão é 10 itens
+    ) {
+        return processorService.getFilteredProcessors(socketModel, gpuModel, hasIntegratedGraphics, brand, searchQuery, sortBy, page, size);
     }
 
 
