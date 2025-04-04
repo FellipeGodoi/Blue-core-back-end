@@ -18,6 +18,8 @@ public class Processor {
     private Long id;
     @Column(unique = true)
     private String modelo;
+    private String linha;
+    @Column(unique = true)
     private String codigo;
     private Double precoOriginal;
     private Double precoVenda;

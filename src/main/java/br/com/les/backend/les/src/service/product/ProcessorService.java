@@ -41,7 +41,6 @@ public class ProcessorService {
 
         List<Processor> processors = processorRepository.findAll();
 
-        // 🔹 Aplica os filtros normalmente
         if (socketModel != null) {
             processors = processors.stream()
                     .filter(p -> p.getSocket().getModelo().equalsIgnoreCase(socketModel))

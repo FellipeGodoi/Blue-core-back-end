@@ -32,8 +32,8 @@ public class ProcessorController {
             @RequestParam(required = false) String brand,
             @RequestParam(required = false) String searchQuery,
             @RequestParam(required = false) String sortBy,
-            @RequestParam(defaultValue = "0") int page,  // Página inicial padrão é 0
-            @RequestParam(defaultValue = "10") int size // Tamanho padrão é 10 itens
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
         return processorService.getFilteredProcessors(socketModel, gpuModel, hasIntegratedGraphics, brand, searchQuery, sortBy, page, size);
     }
