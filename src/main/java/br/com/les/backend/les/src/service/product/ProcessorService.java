@@ -36,6 +36,7 @@ public class ProcessorService {
         return processorRepository.findByPodeSerVendidoTrue();
     }
 
+
     public Page<ProcessorDTO> getFilteredProcessors(String socketModel, String gpuModel, Boolean hasIntegratedGraphics, String brand, String searchQuery, String sortBy, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
@@ -116,6 +117,10 @@ public class ProcessorService {
 
     public Optional<Processor> getProcessorById(Long id) {
         return processorRepository.findById(id);
+    }
+
+    public Optional<Processor> getProcessorByCode(String code) {
+        return processorRepository.findByCodigo(code);
     }
 
     public Processor updateProcessor(Long id, Processor updatedProcessor) {

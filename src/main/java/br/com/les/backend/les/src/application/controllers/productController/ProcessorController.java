@@ -67,4 +67,12 @@ public class ProcessorController {
         processorService.deleteProcessor(id);
         return ResponseEntity.noContent().build();
     }
+
+    //get by barcode
+    @GetMapping("/barcode/{code}")
+    public ResponseEntity<Processor> getProcessorByBarcode(@PathVariable String code) {
+        Optional<Processor> processor = processorService.getProcessorByCode(code);
+        return processor.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }
