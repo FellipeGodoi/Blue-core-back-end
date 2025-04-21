@@ -1,6 +1,8 @@
 package br.com.les.backend.les.src.model.clientModels;
 
+import br.com.les.backend.les.src.model.cartModels.Cart;
 import br.com.les.backend.les.src.model.enums.Gender;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -43,6 +45,10 @@ public class Client {
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Phone> phones;
+
+    @JsonIgnore
+    @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL)
+    private Cart cart;
 
     //para inserção de dados
     public Client(String cpf, String emailClient, String nameClient, LocalDate birthDate, String password, Gender gender) {
