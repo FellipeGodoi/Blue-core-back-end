@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,6 +22,14 @@ public class CartService {
     private final CartRepository cartRepository;
     private final ProcessorRepository processorRepository;
     private final ClientRepository clientRepository;
+
+    public List<CartItem> getCartItemsByClientCpf(String cpf) {
+        List<CartItem> cartItems = getCartByCpf(cpf).getItens();
+        if (cartItems.isEmpty()) {
+            throw new RuntimeException("Carrinho não encontrado" + cpf);
+        }
+        return cartItems;
+    }
 
     public Cart getCartByCpf(String cpf) {
         Client client = clientRepository.findByCpf(cpf)
