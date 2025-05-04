@@ -10,6 +10,7 @@ import br.com.les.backend.les.src.model.orderModels.Order;
 import br.com.les.backend.les.src.model.orderModels.OrderAddress;
 import br.com.les.backend.les.src.model.orderModels.OrderItem;
 import br.com.les.backend.les.src.model.orderModels.PaymentCard;
+import br.com.les.backend.les.src.model.productModels.Processor;
 import br.com.les.backend.les.src.repostory.clientRepository.AddressRepository;
 import br.com.les.backend.les.src.repostory.clientRepository.CreditCardRepository;
 import br.com.les.backend.les.src.repostory.cupomRepository.CupomRepository;
@@ -62,7 +63,7 @@ public class OrderService {
 
         // 7. Verificar se o valor pago nos cartões é maior que o valor total
         if (isPaymentGreaterThanOrderAmount(paymentCards, totalAmount)) {
-            // Se o valor pago pelos cartões for maior que o valor total, alterar o status para "PAGAMENTO REPROVADO"
+            // Se o valor pago pelos cartões for diferente do valor total, alterar o status para "PAGAMENTO REPROVADO"
             return createRejectedOrder(request, orderItems, paymentCards, orderAddress, totalAmount);
         }
 
@@ -85,6 +86,49 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
+    public Order findOrderById(Long id) {
+        return orderRepository.findById(id).orElse(null);
+    }
+
+    public List<OrderResponse> getOrdersByStatus(OrderStatus status) {
+        List<Order> orders = orderRepository.findByStatus(status);
+        return orders.stream()
+                .map(order -> new OrderResponse(
+                        order.getId(),
+                        order.getClientCPF(),
+                        order.getOrderDate(),
+                        order.getTotalAmount(),
+                        order.getStatus()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void updateOrderStatus(Long orderId, OrderStatus newStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado"));
+
+        OrderStatus oldStatus = order.getStatus();
+
+        if (oldStatus == OrderStatus.EM_PROCESSAMENTO && newStatus == OrderStatus.APROVADO) {
+
+            for (OrderItem item : order.getItems()) {
+                Processor processor = processorRepository.findByCodigo(item.getProductCode())
+                        .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado: " + item.getProductCode()));
+
+                if (processor.getEstoque() < item.getQuantity()) {
+                    throw new IllegalStateException("Estoque insuficiente para o produto: " + item.getProductCode());
+                }
+
+                processor.setEstoque(processor.getEstoque() - item.getQuantity());
+                processorRepository.save(processor);
+            }
+        }
+
+        order.setStatus(newStatus);
+        orderRepository.save(order);
+    }
+
     //--------------------------------------------------------------------
 
     // Metodo para criar os OrderItems a partir dos CartItems
@@ -92,6 +136,7 @@ public class OrderService {
         return cartItems.stream()
                 .map(cartItem -> {
                     OrderItem orderItem = new OrderItem();
+                    orderItem.setProductName(cartItem.getProcessor().getModelo());
                     orderItem.setProductCode(cartItem.getProcessor().getCodigo());
                     orderItem.setQuantity(cartItem.getQtd());
                     orderItem.setProductPriceAtOrder(cartItem.getProcessor().getPrecoVenda());
